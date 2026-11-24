@@ -1,1 +1,0 @@
-OhtHumanInfo[] humanInfo
