@@ -23,6 +23,10 @@
 # Config file for the instrumentation of ROS
 # this file is given in input to generator
 #
+
+
+#TEST CODE
+
 nodes: # here we list the nodes we are going to monitor
   - node:
       name: /radiation_sensor_plugin/sensor_0
