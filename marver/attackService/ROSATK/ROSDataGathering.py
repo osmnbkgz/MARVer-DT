@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from time import time_ns
 import rospy
 from std_msgs.msg import String

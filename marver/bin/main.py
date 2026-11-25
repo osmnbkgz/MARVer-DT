@@ -1,9 +1,11 @@
 from PyQt5.QtWidgets import *
 from UI_MARVer import Ui_MainWindow
 import sys
-import getpass
+from pathlib import Path
 
-tmp = r'/home/' + getpass.getuser() + r'/marver'
+CURRENT_DIR_main = Path(__file__).resolve().parents[2]
+
+tmp = str(CURRENT_DIR_main) + r'/marver'
 sys.path.append(tmp)
 
 from src.marver_r.GuiConfig import GuiConfig

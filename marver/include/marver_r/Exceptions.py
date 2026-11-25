@@ -55,7 +55,7 @@ class MonitorNotExist(Error):
     """Exception raised when the monitor is not created or imported"""
 
 
-class CatkinMakeError(Error):
+class ColconBuildError(Error):
     """Exception raised when the ros workspace isn't selected correctly"""
 
 

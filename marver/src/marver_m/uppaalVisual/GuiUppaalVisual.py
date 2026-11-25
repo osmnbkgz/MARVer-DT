@@ -110,7 +110,7 @@ class GuiUppaalVisual(QMainWindow):
 
     def openFromLocal(self):
         #self.__uppaalData.__ui.btnVisual_SaveQuery.setEnabled(False)
-        fname, filter = QFileDialog.getOpenFileName(self, 'Select xml file', '', 'Graph (*.xml);;All files (*)')
+        fname, filter = QFileDialog.getOpenFileName(self, 'Select xml file', '', 'Graph (*.xml);;All files (*)',options=QFileDialog.DontUseNativeDialog)
         if fname:
             with open(fname, "r") as f:
                 info = getNodeEdgeList(f.read())

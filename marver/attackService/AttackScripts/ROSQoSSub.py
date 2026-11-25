@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from logging import StringTemplateStyle
 from pickle import FALSE
 import time

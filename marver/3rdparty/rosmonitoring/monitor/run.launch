@@ -1,7 +1,0 @@
-
-<launch>
-        
-<node pkg="monitor" type="mon_oma.py" name="mon_oma" output="screen"/>
-            
-</launch>
-        

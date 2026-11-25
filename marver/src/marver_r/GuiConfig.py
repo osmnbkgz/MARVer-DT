@@ -7,7 +7,10 @@ from src.marver_r.GuiLog import GuiLog
 from include.marver_r.Verifier import Verifier
 from bin.UI_MARVer import Ui_MainWindow
 import distutils.util
-import getpass
+from pathlib import Path
+
+CURRENT_DIR_gconf= Path(__file__).resolve().parents[4]
+
 
 class GuiConfig:
     """! Config clas for preparing config file content
@@ -71,7 +74,7 @@ class GuiConfig:
                 return
         
         monitorPath = self.__ui.txtConfigNodePath.text()
-        monitor_path = "/home/" + getpass.getuser() + "/catkin_ws/src/" + monitorPath
+        monitor_path = str(CURRENT_DIR_gconf) + "/" + monitorPath
         
         self.__monitors[self.__ui.cbxMonitorMonitor.currentIndex() - 1].appendNode(
             Node(name=self.__ui.txtConfigNodeName.text(), type=None,
@@ -200,7 +203,7 @@ class GuiConfig:
         
         monitorLogPath = self.__ui.txtConfigMonitorLog.text()
         self.__ui.txtConfigMonitorLog
-        monitor_log_path = "/home/" + getpass.getuser() + "/catkin_ws/src/" + monitorLogPath
+        monitor_log_path = str(CURRENT_DIR_gconf) + "/" + monitorLogPath
         
         self.__monitors.append(Monitor(name=self.__ui.txtConfigMonitorName.text(),
                                        logFileName=monitor_log_path,
@@ -242,8 +245,8 @@ class GuiConfig:
         #             return
         
         monitorPath = self.__ui.txtConfigNodePath.text()
-        tmpPath = "/home/" + getpass.getuser() + "/catkin_ws/src/"
-        
+        tmpPath = str(CURRENT_DIR_gconf)
+
         if (len(monitorPath) >= len(tmpPath)):
             monitor_path = monitorPath
         else:
@@ -345,7 +348,7 @@ class GuiConfig:
                     return
         
         monitorLogPath = self.__ui.txtConfigMonitorLog.text()
-        tmpLogPath = "/home/" + getpass.getuser() + "/catkin_ws/src/"
+        tmpLogPath = str(CURRENT_DIR_gconf)
         
         if len(monitorLogPath) >= len(tmpLogPath):
                 monitor_log_path = monitorLogPath
@@ -637,6 +640,7 @@ class GuiConfig:
     def saveConfig2file(self):
         """! Saves new config file format into local files.
         """
+        file_name = None
 
         if not self.__ui.txtConfigSaveYaml.text():
             self.__logger.printLog("Please fill the file name field.", color="red")
@@ -644,10 +648,10 @@ class GuiConfig:
         if not self.__monitors.__len__():
             self.__logger.printLog("Can not cast to file, no monitor exists.", color="red")
             return
+
         try:
             with open(
-                    f"3rdparty/rosmonitoring/generator/online_configs/{self.__ui.txtConfigSaveYaml.text()}" + ".yaml",
-                    'w') as file:
+                    str(CURRENT_DIR_gconf) + f"/MARVer/marver/3rdparty/rosmonitoring/generator/online_configs/{self.__ui.txtConfigSaveYaml.text()}" + ".yaml",'w') as file:
                 if not file:
                     raise IOError("An error occurred while reading the file")
                 file.write(self.cast2configFile())
@@ -665,10 +669,12 @@ class GuiConfig:
         """
 
         fname = "filename"
+        initial_dir = CURRENT_DIR_gconf
         try:
             fname, filter = QFileDialog.getOpenFileName(None, 'Select config file',
-                                                        '3rdparty/rosmonitoring/generator/online_configs/',
-                                                        'Graph (*.yaml);;All files (*)')
+                                                        str(initial_dir) + "/",
+                                                        'Graph (*.yaml);;All files (*)',
+                                                        options=QFileDialog.DontUseNativeDialog)
             if not fname:
                 raise ImportError(f"<CONFIG IMPORT> An error occurred while {fname} importing")
             self.insertConfigFile(fname)

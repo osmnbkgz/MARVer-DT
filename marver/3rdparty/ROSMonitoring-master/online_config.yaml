@@ -1,0 +1,25 @@
+ros_version: ros2
+path: /home/baki/ros2_ws_master/src  
+
+monitors:  
+  - monitor:
+      id: monitor_0
+      log: /home/baki/ros2_ws_master/ros_online_log.jsonl
+      status:
+        publish: false
+        topic: /monitor_status      
+      silent: False  
+      oracle:  
+        port: 8080  
+        url: 127.0.0.1  
+        action: nothing  
+ 
+      topics:  
+        - name: /model/RotarySingleRod_model/joint/rod_joint/cmd_force
+          type: std_msgs.msg.Float64 
+          action: log
+         
+        - name: /world/RotarySingleRod_world/model/RotarySingleRod_model/joint_state
+          type: sensor_msgs.msg.JointState 
+          action: log
+         

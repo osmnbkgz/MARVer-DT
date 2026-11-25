@@ -204,7 +204,7 @@ class NodeEditorWindow(QMainWindow):
     def onFileOpen(self):
         """Handle File Open operation"""
         if self.maybeSave():
-            fname, filter = QFileDialog.getOpenFileName(self, 'Open graph from file', self.getFileDialogDirectory(), self.getFileDialogFilter())
+            fname, filter = QFileDialog.getOpenFileName(self, 'Open graph from file', self.getFileDialogDirectory(), self.getFileDialogFilter(),options=QFileDialog.DontUseNativeDialog)
             self.nodeeditor.updateNodeEdgeList(fname)
             self.nodeeditor.addNodes(0)
             self.menuBar().clear()

@@ -99,7 +99,7 @@ class MenuBar:
     def openFileDialogWindow(self) -> str:
         try:
             path = QFileDialog.getOpenFileName(None, "Open File", "../",
-                                               "Text Files (*.json)")
+                                               "Text Files (*.json)",options=QFileDialog.DontUseNativeDialog)
             if path:
                 self.__logger.printLog(message="File selection completed successfully", color="green")
                 return path[0]
@@ -112,7 +112,7 @@ class MenuBar:
 
     def openFolderDialogWindow(self):
         try:
-            rosWsFolder = QFileDialog.getSaveFileName(None, "Select your catkin_ws folder", "../")
+            rosWsFolder = QFileDialog.getSaveFileName(None, "Select your workspace folder", "../")
             if rosWsFolder:
                 self.__logger.printLog(message="Folder selection completed successfully", color="green")
                 return rosWsFolder

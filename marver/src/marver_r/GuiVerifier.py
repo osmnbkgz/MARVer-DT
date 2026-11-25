@@ -8,6 +8,9 @@ from bin.UI_MARVer import Ui_MainWindow
 from include.marver_r.Verifier import Verifier
 from include.marver_r.XmlParser import XmlParser
 import json
+from pathlib import Path
+
+CURRENT_DIR_gver= Path(__file__).resolve().parents[4]
 
 
 class GuiVerifier:
@@ -125,8 +128,8 @@ class GuiVerifier:
 
     def openFileDialogWindow(self, ext) -> str:
         try:
-            filePath, check = QFileDialog.getOpenFileName(None, "Open File", "3rdparty/rosmonitoring/oracle",
-                                                          "Text Files (*." + ext + ")")
+            filePath, check = QFileDialog.getOpenFileName(None, "Open File", str(CURRENT_DIR_gver) + f"/MARVer/marver/3rdparty/rosmonitoring/oracle",
+                                                          "Text Files (*." + ext + ")",options=QFileDialog.DontUseNativeDialog)
             if filePath:
                 self.__logger.printLog(message="File selection completed successfully", color="green")
                 return filePath
@@ -156,11 +159,12 @@ class GuiVerifier:
             if items:
                 try:
                     if self.__ui.cbxPropertySaveType.currentText() == "TL Oracle":
-                        with open(f'3rdparty/rosmonitoring/oracle/TLOracle/properties/{fileName}.json', 'w') as f:
+                        file_name_tmp=str(CURRENT_DIR_gver) + f'/MARVer/marver/3rdparty/rosmonitoring/oracle/TLOracle/properties/{fileName}.json'
+                        with open(file_name_tmp, 'w') as f:
                             f.write(self.preparePropertiesJSON(
                                 self.__tlOracle.getPropertiesByName(names=[item.text() for item in items])))
                     else:
-                        with open(f'3rdparty/rosmonitoring/oracle/RMLOracle/rml/properties/{fileName}.json',
+                        with open(str(CURRENT_DIR_gver) + f'/MARVer/marver/3rdparty/rosmonitoring/oracle/RMLOracle/rml/properties/{fileName}.json',
                                   'w') as f:
                             f.write(self.preparePropertiesJSON(
                                 self.__rmlOracle.getPropertiesByName(names=[item.text() for item in items])))

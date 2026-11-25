@@ -1,4 +1,4 @@
-import getpass
+#!/usr/bin/env python3
 from PyQt5.QtWidgets import *
 from src.marver_r.GuiLog import GuiLog
 from src.marver_r.RVOnline import RVOnline
@@ -14,8 +14,13 @@ import os, json, time
 import subprocess
 import threading
 import yaml
+from pathlib import Path
+
 
 global configFile
+
+CURRENT_DIR_gmon= Path(__file__).resolve().parents[4]
+
 
 class GuiMonitor:
 
@@ -61,7 +66,7 @@ class GuiMonitor:
                 raise LinkMonitor2ROSWs
 
             if self.runCommand(
-                    f"ln -s {os.getcwd()}/3rdparty/rosmonitoring/monitor {self.__project.getRosPath()}/src"):
+                    f"ln -s {self.__project.getRosPath()}/src/MARVer/marver/3rdparty/rosmonitoring/monitor {self.__project.getRosPath()}/src"):
                 self.__logger.printLog("Monitor link is created into Ros workspace successfully", "black")
             else:
                 raise LinkMonitor2ROSWs
@@ -77,7 +82,7 @@ class GuiMonitor:
         try:
             if not isReady:
                 self.__project.setConfFilePath(
-                    self.openFileDialogWindow("3rdparty/rosmonitoring/generator/online_configs/", "yaml"))
+                    self.openFileDialogWindow(str(CURRENT_DIR_gmon) +  "/MARVer/marver/3rdparty/rosmonitoring/generator/online_configs/", "yaml"))
 
             if self.__project.getConfFilePath():
                 with open(self.__project.getConfFilePath()) as file:
@@ -90,13 +95,13 @@ class GuiMonitor:
                 self.convertYAML2MonitorPy(filePath=self.__project.getConfFilePath())
                 self.__logger.printLog("Selecting conf .yaml file is complete successfully", "black")
                 # configFile
-                
-            if self.runCommand("chmod +x ~/marver/3rdparty/rosmonitoring/oracle/TLOracle/oracle.py"):
+
+            if self.runCommand("chmod +x " + str(CURRENT_DIR_gmon) +  "/MARVer/marver/3rdparty/rosmonitoring/oracle/TLOracle/oracle.py"):
                 self.__logger.printLog("TLOracle got executable permission successfully.", "black")
             else:
                 raise GetExecutableAuthTLOracle
 
-            self.catkinMake()
+            self.colconBuild()
            
         except MonitorNotExist:
             self.__logger.printLog(
@@ -112,19 +117,22 @@ class GuiMonitor:
     
     def convertYAML2MonitorPy(self, filePath: str):
         try:
-            if self.runCommand("chmod +x ~/marver/3rdparty/rosmonitoring/generator/generator"):
+            if self.runCommand("chmod +x " + str(CURRENT_DIR_gmon) +  "/MARVer/marver/3rdparty/rosmonitoring/generator/generator"):
                 self.__logger.printLog("Generator got executable permission successfully.", "black")
             else:
                 raise GetExecutableAuthGenerator
-            os.chdir("3rdparty/rosmonitoring/generator/")
-            if self.runCommand(f"./generator --config_file {filePath}"):
+
+            o_path = str(CURRENT_DIR_gmon) +  "/MARVer/marver/3rdparty/rosmonitoring/generator/"
+            os.chdir(o_path)
+            self.__logger.printLog(f"./generator --config_file " + filePath)
+            if self.runCommand(f"./generator --config_file " + filePath):
                 self.__logger.printLog(message="Monitor file is generated successfully", color="black")
             else:
                 os.chdir("../../")
                 raise ConvertYAML2MonitorPy
 
             os.chdir("../../")
-            if self.runCommand(f"chmod +x ~/marver/3rdparty/rosmonitoring/monitor/src/{self.__monitor[0].getName()}.py"):
+            if self.runCommand(f"chmod +x " + str(CURRENT_DIR_gmon) +  "/MARVer/marver/3rdparty/rosmonitoring/monitor/src/" + self.__monitor[0].getName() + ".py"):
                 self.__logger.printLog("The monitor got executable permission successfully.", "black")
             else:
                 raise GetExecutableAuthMonitor
@@ -141,14 +149,15 @@ class GuiMonitor:
             self.__logger.printLog("An error is occurred in convertYAML2MonitorPy()", "red")
 
     def openFolderDialogWindow(self):
-        tmp = "/home/" + getpass.getuser() + "/catkin_ws"
+        #tmp = "/home/" + getpass.getuser() + "/catkin_ws"
         try:
-            rosWsFolder = QFileDialog.getExistingDirectory(None, "Select your catkin_ws folder", "/home")
-            if rosWsFolder == tmp:
-                self.__logger.printLog(message="ROS workspace folder selection completed successfully", color="black")
-                return rosWsFolder
-            else:
-                raise IOError(f"An error occurred while opening the folder")
+            rosWsFolder = QFileDialog.getExistingDirectory(None, "Select your workspace folder", "/home",
+                                                        options=QFileDialog.DontUseNativeDialog)
+            #if rosWsFolder == tmp:
+            self.__logger.printLog(message="ROS workspace folder selection completed successfully", color="black")
+            return rosWsFolder
+            #else:
+                #raise IOError(f"An error occurred while opening the folder")
         except IOError:
             self.__logger.printLog(message=f"An error occurred while opening the folder", color="red")
         except:
@@ -157,7 +166,7 @@ class GuiMonitor:
     def openFileDialogWindow(self, baseFolder, extension: str) -> str:
         try:
             filePath, check = QFileDialog.getOpenFileName(None, "Open File", baseFolder,
-                                                          f"Text Files (*.{extension})")
+                                                          f"Text Files (*.{extension})",options=QFileDialog.DontUseNativeDialog)
             if filePath:
                 self.__logger.printLog(message="File selection completed successfully", color="black")
                 return filePath
@@ -215,16 +224,16 @@ class GuiMonitor:
 
         return monitors
 
-    def catkinMake(self):
+    def colconBuild(self):
         try:
-            if self.runCommand(f"catkin_make --directory {self.__project.getRosPath()}"):
+            if self.runCommand(f"colcon build --base-paths {self.__project.getRosPath()}"):
                 self.__logger.printLog(message="Ros workspace built successfully", color="black")
             else:
-                raise CatkinMakeError
+                raise ColconBuildError
 
-        except CatkinMakeError:
+        except ColconBuildError:
             self.__logger.printLog(
-                message="An error is occurred while catkin_make process. Please select ros workspace first.",
+                message="An error is occurred while colcon build process. Please select ros workspace first.",
                 color="red")
 
     def selectPropertyFile(self, isReady: bool):
@@ -236,7 +245,8 @@ class GuiMonitor:
         if not isReady:
             if self.__ui.cbxMonitorVerifierType.currentText() == "TL Oracle":
                 self.convertProperty2TL(
-                    self.openFileDialogWindow("../3rdparty/rosmonitoring/oracle/TLOracle/properties/", "json"))
+                    self.openFileDialogWindow(str(CURRENT_DIR_gmon) +  "/MARVer/3rdparty/rosmonitoring/oracle/TLOracle/properties/", "json",
+                                                        options=QFileDialog.DontUseNativeDialog))
             # else:
             #     self.convertProperty2RML(
             #         self.openFileDialogWindow("3rdparty/rosmonitoring/oracle/RMLOracle/rml/properties/", "json"))
@@ -271,7 +281,7 @@ class GuiMonitor:
                 content += '\tprint(parsed_msg)\n'
                 content += '\treturn parsed_msg\n\n'
             """
-            with open(f"/home/" + getpass.getuser() + f"/marver/3rdparty/rosmonitoring/oracle/TLOracle/{name}.py", "w") as file:
+            with open(str(CURRENT_DIR_gmon) + f"/MARVer/marver/3rdparty/rosmonitoring/oracle/TLOracle/{name}.py", "w") as file:
                 content = ''
                 content += '''\nPROPERTY="{formula}"\n\n\n'''.format(formula=formula)
                 content += 'def abstract_message(message):\n'
